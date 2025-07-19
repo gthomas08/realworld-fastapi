@@ -29,9 +29,3 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     """Async database session dependency."""
     async with async_session_maker() as session:
         yield session
-
-
-async def create_db_and_tables():
-    """Create database tables."""
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)

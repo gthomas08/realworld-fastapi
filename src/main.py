@@ -1,26 +1,13 @@
-
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from scalar_fastapi import get_scalar_api_reference
 
-from src.database import create_db_and_tables
-from src.posts.router import router as posts_router
 from src.users.router import router as users_router
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Create db tables
-    await create_db_and_tables()
-    yield
 
 
 app = FastAPI(
     title="Real World FastAPI",
     description="A FastAPI application with authentication",
-    lifespan=lifespan
 )
 
 # Optionally add CORS middleware (customize as needed)
@@ -33,7 +20,6 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(posts_router)
 app.include_router(users_router)
 
 
