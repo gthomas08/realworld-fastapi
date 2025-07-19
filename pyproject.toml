@@ -16,6 +16,9 @@ alembic = "*"
 httpx = "*"
 scalar-fastapi = "^1.2.2"
 pydantic-settings = "^2.10.1"
+fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.1"}
+python-multipart = "^0.0.20"
+asyncpg = "^0.30.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
