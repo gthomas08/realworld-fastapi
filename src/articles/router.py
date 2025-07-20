@@ -16,7 +16,7 @@ from .schemas import (
     ProfileSchema
 )
 
-router = APIRouter(prefix="/articles", tags=["Articles"])
+router = APIRouter(prefix="/articles", tags=["articles"])
 
 
 def _user_to_profile_schema(user: User, is_following: bool = False) -> ProfileSchema:

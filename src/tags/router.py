@@ -5,7 +5,7 @@ from src.database import get_async_session
 from .service import TagService
 from .schemas import TagsResponse
 
-router = APIRouter(prefix="/tags", tags=["Tags"])
+router = APIRouter(prefix="/tags", tags=["tags"])
 
 
 @router.get("", response_model=TagsResponse)
