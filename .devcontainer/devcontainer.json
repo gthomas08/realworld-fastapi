@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/postgres
 {
-	"name": "Python 3 & PostgreSQL",
+	"name": "RealWorld FastAPI",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
@@ -19,7 +19,7 @@
 		9009 // Pyroscope
 	],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "poetry env use python3 && poetry install",
+	"postCreateCommand": "python3 -m venv .venv && grep -qxF 'source /workspaces/${localWorkspaceFolderBasename}/.venv/bin/activate' ~/.bashrc || echo 'source /workspaces/${localWorkspaceFolderBasename}/.venv/bin/activate' >> ~/.bashrc && grep -qxF 'source /workspaces/${localWorkspaceFolderBasename}/.venv/bin/activate' ~/.profile || echo 'source /workspaces/${localWorkspaceFolderBasename}/.venv/bin/activate' >> ~/.profile",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
