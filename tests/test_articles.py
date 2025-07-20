@@ -7,9 +7,12 @@ from httpx import AsyncClient
 from uuid import uuid4
 
 from src.users.models import User
-from src.articles.models import Article, Comment
-from src.articles.service import ArticleService, CommentService
-from src.articles.schemas import NewArticle, UpdateArticle, NewComment
+from src.articles.models import Article
+from src.comments.models import Comment
+from src.articles.service import ArticleService
+from src.comments.service import CommentService
+from src.articles.schemas import NewArticle, UpdateArticle
+from src.comments.schemas import NewComment
 from src.tags.models import Tag
 from src.main import app
 from src.database import Base

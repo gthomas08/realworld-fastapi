@@ -90,12 +90,6 @@ class Article(Base):
         back_populates="favorite_articles",
         lazy="select"
     )
-    comments: Mapped[List["Comment"]] = relationship(
-        "Comment",
-        back_populates="article",
-        cascade="all, delete-orphan",
-        lazy="select"
-    )
 
     def __repr__(self) -> str:
         return f"<Article(id={self.id}, slug='{self.slug}', title='{self.title}')>"
@@ -110,44 +104,3 @@ class Article(Base):
         if not user_id:
             return False
         return any(user.id == user_id for user in self.favorited_by)
-
-
-class Comment(Base):
-    """Comment model for article comments."""
-
-    __tablename__ = 'comments'
-
-    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
-    body: Mapped[str] = Column(Text, nullable=False)
-    article_id: Mapped[UUID] = Column(
-        PostgreSQLUUID(as_uuid=True),
-        ForeignKey('articles.id', ondelete='CASCADE'),
-        nullable=False,
-        index=True
-    )
-    author_id: Mapped[UUID] = Column(
-        PostgreSQLUUID(as_uuid=True),
-        ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False,
-        index=True
-    )
-    created_at: Mapped[datetime] = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
-        index=True
-    )
-    updated_at: Mapped[datetime] = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=False
-    )
-
-    # Relationships
-    article: Mapped["Article"] = relationship(
-        "Article", back_populates="comments")
-    author: Mapped["User"] = relationship("User", lazy="selectin")
-
-    def __repr__(self) -> str:
-        return f"<Comment(id={self.id}, article_id={self.article_id}, author_id={self.author_id})>"

@@ -7,6 +7,7 @@ from src.users.router import router as users_router
 from src.profiles.router import router as profiles_router
 from src.tags.router import router as tags_router
 from src.articles.router import router as articles_router
+from src.comments.router import router as comments_router
 
 
 app = FastAPI(
@@ -29,6 +30,7 @@ app.include_router(users_router)
 app.include_router(profiles_router)
 app.include_router(tags_router)
 app.include_router(articles_router)
+app.include_router(comments_router)
 
 
 @app.get("/")
