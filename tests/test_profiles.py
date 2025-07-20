@@ -6,7 +6,7 @@ from httpx import AsyncClient
 import uuid
 
 from src.users.models import User, user_follows
-from src.profiles.models import ProfileService
+from src.profiles.service import ProfileService
 
 
 class TestProfiles:

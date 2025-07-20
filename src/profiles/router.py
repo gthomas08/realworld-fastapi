@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_async_session
 from src.auth.dependencies import current_active_user, current_user_optional
 from src.users.models import User
-from .models import ProfileService
+from .service import ProfileService
 from .schemas import ProfileResponse, ProfileUpdate, FollowResponse
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
