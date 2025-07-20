@@ -10,7 +10,13 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// This can be used to network with other containers or the host.
 	"forwardPorts": [
-		8000 // server
+		8000, // server
+		3000, // Grafana
+		3100, // Loki
+		4317, // OTLP/gRPC
+		4318, // OTLP/HTTP
+		9095, // Tempo
+		9009 // Pyroscope
 	],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "poetry env use python3 && poetry install",
