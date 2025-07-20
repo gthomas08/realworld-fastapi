@@ -54,3 +54,19 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         secondaryjoin="User.id == user_follows.c.follower_id",
         back_populates="following"
     )
+
+    # Articles authored by this user
+    articles = relationship(
+        "Article",
+        back_populates="author",
+        cascade="all, delete-orphan",
+        lazy="select"
+    )
+
+    # Articles favorited by this user
+    favorite_articles = relationship(
+        "Article",
+        secondary="article_favorites",
+        back_populates="favorited_by",
+        lazy="select"
+    )
