@@ -98,32 +98,6 @@ class TestProfileService:
         profile = await service.get_profile_by_username(other_user.username, test_user)
         assert profile.is_following is True
 
-    async def test_update_profile(self, async_session: AsyncSession, test_user: User):
-        """Test updating user profile."""
-        service = ProfileService(async_session)
-
-        # Update all fields
-        updated_user = await service.update_profile(
-            test_user,
-            username="newusername",
-            bio="New bio",
-            image="https://example.com/new.jpg"
-        )
-
-        assert updated_user.username == "newusername"
-        assert updated_user.bio == "New bio"
-        assert updated_user.image == "https://example.com/new.jpg"
-
-        # Update partial fields
-        updated_user = await service.update_profile(
-            updated_user,
-            bio="Updated bio only"
-        )
-
-        assert updated_user.username == "newusername"  # unchanged
-        assert updated_user.bio == "Updated bio only"
-        assert updated_user.image == "https://example.com/new.jpg"  # unchanged
-
     async def test_follow_user(
         self,
         async_session: AsyncSession,
@@ -186,43 +160,6 @@ class TestProfileSchemas:
         assert profile.image == "https://example.com/image.jpg"
         assert profile.following is True
 
-    def test_profile_update_schema_validation(self):
-        """Test ProfileUpdate schema validation."""
-        from src.profiles.schemas import ProfileUpdate
-
-        # Valid username
-        update = ProfileUpdate(username="validuser123")
-        assert update.username == "validuser123"
-
-        # Username with underscores and hyphens
-        update = ProfileUpdate(username="user_name-123")
-        assert update.username == "user_name-123"
-
-        # Username should be lowercase
-        update = ProfileUpdate(username="UserName")
-        assert update.username == "username"  # Converted to lowercase
-
-    def test_profile_update_invalid_username(self):
-        """Test ProfileUpdate schema with invalid usernames."""
-        from src.profiles.schemas import ProfileUpdate
-        from pydantic import ValidationError
-
-        # Username with invalid characters
-        with pytest.raises(ValidationError):
-            ProfileUpdate(username="user@name")
-
-        # Username starting with underscore
-        with pytest.raises(ValidationError):
-            ProfileUpdate(username="_username")
-
-        # Username ending with hyphen
-        with pytest.raises(ValidationError):
-            ProfileUpdate(username="username-")
-
-        # Username too short
-        with pytest.raises(ValidationError):
-            ProfileUpdate(username="ab")
-
 
 class TestUserModelValidation:
     """Test User model validation with username."""
@@ -277,47 +214,6 @@ class TestUserModelValidation:
         # Now should be following
         profile = await service.get_profile_by_username(other_user.username, test_user)
         assert profile.is_following is True
-
-    async def test_update_profile(self, async_session: AsyncSession, test_user: User):
-        """Test updating user profile."""
-        service = ProfileService(async_session)
-
-        # Update all fields
-        updated_user = await service.update_profile(
-            test_user,
-            username="newusername",
-            bio="New bio",
-            image="https://example.com/new.jpg"
-        )
-
-        assert updated_user.username == "newusername"
-        assert updated_user.bio == "New bio"
-        assert updated_user.image == "https://example.com/new.jpg"
-
-        # Update partial fields
-        updated_user = await service.update_profile(
-            updated_user,
-            bio="Updated bio only"
-        )
-
-        assert updated_user.username == "newusername"  # unchanged
-        assert updated_user.bio == "Updated bio only"
-        assert updated_user.image == "https://example.com/new.jpg"  # unchanged
-
-    async def test_update_profile_duplicate_username(
-        self,
-        async_session: AsyncSession,
-        test_user: User,
-        other_user: User
-    ):
-        """Test updating profile with duplicate username raises error."""
-        service = ProfileService(async_session)
-
-        with pytest.raises(Exception):  # Should raise HTTPException with 422 status
-            await service.update_profile(
-                test_user,
-                username=other_user.username  # Try to use existing username
-            )
 
     async def test_follow_user(
         self,
@@ -422,72 +318,6 @@ class TestProfileSchemas:
         assert profile.bio == "Test bio"
         assert profile.image == "https://example.com/image.jpg"
         assert profile.following is True
-
-    def test_profile_update_schema_validation(self):
-        """Test ProfileUpdate schema validation."""
-        from src.profiles.schemas import ProfileUpdate
-
-        # Valid username
-        update = ProfileUpdate(username="validuser123")
-        assert update.username == "validuser123"
-
-        # Username with underscores and hyphens
-        update = ProfileUpdate(username="user_name-123")
-        assert update.username == "user_name-123"
-
-        # Username should be lowercase
-        update = ProfileUpdate(username="UserName")
-        assert update.username == "username"  # Converted to lowercase
-
-    def test_profile_update_invalid_username(self):
-        """Test ProfileUpdate schema with invalid usernames."""
-        from src.profiles.schemas import ProfileUpdate
-        from pydantic import ValidationError
-
-        # Username with invalid characters
-        with pytest.raises(ValidationError):
-            ProfileUpdate(username="user@name")
-
-        # Username starting with underscore
-        with pytest.raises(ValidationError):
-            ProfileUpdate(username="_username")
-
-        # Username ending with hyphen
-        with pytest.raises(ValidationError):
-            ProfileUpdate(username="username-")
-
-        # Username too short
-        with pytest.raises(ValidationError):
-            ProfileUpdate(username="ab")
-
-
-class TestUserModelValidation:
-    """Test User model validation with username."""
-
-    def test_username_validation_in_auth_schemas(self):
-        """Test username validation in auth schemas."""
-        from src.auth.schemas import UserCreate, UserUpdate
-        from pydantic import ValidationError
-
-        # Valid user creation
-        user_create = UserCreate(
-            email="test@example.com",
-            password="password123",
-            username="testuser"
-        )
-        assert user_create.username == "testuser"
-
-        # Username validation in update
-        user_update = UserUpdate(username="newusername")
-        assert user_update.username == "newusername"
-
-        # Invalid username should raise error
-        with pytest.raises(ValidationError):
-            UserCreate(
-                email="test@example.com",
-                password="password123",
-                username="user@name"  # Invalid character
-            )
 
 
 @pytest.fixture

@@ -29,36 +29,6 @@ class ProfileService:
             user.is_following = False
         return user
 
-    async def update_profile(
-        self,
-        user: User,
-        username: Optional[str] = None,
-        bio: Optional[str] = None,
-        image: Optional[str] = None
-    ) -> User:
-        try:
-            if username is not None:
-                existing_user = await self._get_user_by_username(username)
-                if existing_user and existing_user.id != user.id:
-                    raise HTTPException(
-                        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                        detail="Username already taken"
-                    )
-                user.username = username
-            if bio is not None:
-                user.bio = bio
-            if image is not None:
-                user.image = image
-            await self.session.commit()
-            await self.session.refresh(user)
-            return user
-        except IntegrityError:
-            await self.session.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Username already taken"
-            )
-
     async def follow_user(self, follower: User, username: str) -> User:
         user_to_follow = await self._get_user_by_username(username)
         if not user_to_follow:

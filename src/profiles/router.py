@@ -6,7 +6,7 @@ from src.database import get_async_session
 from src.auth.dependencies import current_active_user, current_user_optional
 from src.users.models import User
 from .service import ProfileService
-from .schemas import ProfileResponse, ProfileUpdate, FollowResponse
+from .schemas import ProfileResponse, FollowResponse
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
@@ -41,31 +41,6 @@ async def get_profile(
     is_following = getattr(user, 'is_following', False)
 
     return _user_to_profile_response(user, is_following)
-
-
-@router.put("/{username}", response_model=ProfileResponse)
-async def update_profile(
-    username: str,
-    profile_update: ProfileUpdate,
-    session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
-):
-    """Update user profile. Only the profile owner can update their profile."""
-    if current_user.username != username:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Can only update your own profile"
-        )
-
-    profile_service = ProfileService(session)
-    updated_user = await profile_service.update_profile(
-        current_user,
-        username=profile_update.username,
-        bio=profile_update.bio,
-        image=profile_update.image
-    )
-
-    return _user_to_profile_response(updated_user, False)
 
 
 @router.post("/{username}/follow", response_model=FollowResponse)

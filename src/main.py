@@ -33,11 +33,6 @@ app.include_router(articles_router)
 app.include_router(comments_router)
 
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello World"}
-
-
 @app.get("/scalar", include_in_schema=False)
 async def scalar_html():
     return get_scalar_api_reference(

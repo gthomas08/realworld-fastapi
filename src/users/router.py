@@ -13,9 +13,3 @@ router.include_router(
     prefix="/users",
     tags=["users"],
 )
-
-
-@router.get("/protected")
-async def protected_route(user: User = Depends(current_active_user)):
-    """Example protected route that requires authentication."""
-    return {"message": f"Hello {user.email}! You are authenticated."}
