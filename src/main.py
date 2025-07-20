@@ -5,6 +5,7 @@ from scalar_fastapi import get_scalar_api_reference
 from src.auth.router import auth_router
 from src.users.router import router as users_router
 from src.profiles.router import router as profiles_router
+from src.tags.router import router as tags_router
 
 
 app = FastAPI(
@@ -25,6 +26,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(profiles_router)
+app.include_router(tags_router)
 
 
 @app.get("/")
