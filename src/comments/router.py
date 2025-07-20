@@ -17,7 +17,7 @@ from .schemas import (
     Comment as CommentSchema
 )
 
-router = APIRouter(prefix="/articles", tags=["comments"])
+router = APIRouter(prefix="/articles", tags=["Comments"])
 
 
 def _user_to_profile_schema(user: User, is_following: bool = False) -> ProfileResponse:

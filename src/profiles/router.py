@@ -8,7 +8,7 @@ from src.users.models import User
 from .service import ProfileService
 from .schemas import ProfileResponse, FollowResponse
 
-router = APIRouter(prefix="/profiles", tags=["profiles"])
+router = APIRouter(prefix="/profiles", tags=["Profiles"])
 
 
 def _user_to_profile_response(user: User, is_following: bool = False) -> ProfileResponse:
