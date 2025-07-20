@@ -4,7 +4,28 @@
 		{
 			"type": "shell",
 			"label": "Run FastAPI App",
-			"command": "uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload",
+			"command": "poetry run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload",
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "Run FastAPI App (otel)",
+			"command": "poetry run opentelemetry-instrument uvicorn src.main:app --host 0.0.0.0 --port 8000",
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "DB Generate Migration",
+			"command": "poetry run alembic revision --autogenerate -m \"$(name)\"",
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "DB Migrate Upgrade",
+			"command": "poetry run alembic upgrade head",
 			"group": "build",
 			"problemMatcher": []
 		}
