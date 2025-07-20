@@ -281,10 +281,6 @@ We welcome contributions! Please follow these steps:
 - [Alembic Documentation](https://alembic.sqlalchemy.org/)
 - [Poetry Documentation](https://python-poetry.org/docs/)
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙋‍♂️ Support
 
 If you encounter any issues or have questions:
