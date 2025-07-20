@@ -19,7 +19,7 @@
 		9009 // Pyroscope
 	],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "python3 -m venv .venv && grep -qxF 'source /workspaces/${localWorkspaceFolderBasename}/.venv/bin/activate' ~/.bashrc || echo 'source /workspaces/${localWorkspaceFolderBasename}/.venv/bin/activate' >> ~/.bashrc && grep -qxF 'source /workspaces/${localWorkspaceFolderBasename}/.venv/bin/activate' ~/.profile || echo 'source /workspaces/${localWorkspaceFolderBasename}/.venv/bin/activate' >> ~/.profile",
+	"postCreateCommand": "python3 -m venv .venv && poetry install && opentelemetry-bootstrap -a install",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {

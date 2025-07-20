@@ -11,9 +11,6 @@ RUN apt-get update && apt-get install -y python3-pip && \
 RUN pip3 --disable-pip-version-check --no-cache-dir install --upgrade pip && \
     pip3 --disable-pip-version-check --no-cache-dir install opentelemetry-distro opentelemetry-exporter-otlp
 
-# Run OpenTelemetry bootstrap
-RUN opentelemetry-bootstrap -a install
-
 # Install Poetry via pipx
 RUN pipx install poetry
 
