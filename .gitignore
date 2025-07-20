@@ -14,9 +14,6 @@ ENV/
 .env
 .env.*
 
-# Alembic
-alembic/versions/
-
 # Test and coverage outputs
 htmlcov/
 .coverage
