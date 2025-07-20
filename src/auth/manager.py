@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
 from src.database import get_async_session
-from .models import User
+from src.users.models import User
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
