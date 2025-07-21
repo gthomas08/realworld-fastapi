@@ -129,7 +129,7 @@ Run the comprehensive test suite:
 poetry run pytest
 
 # Run specific test file
-poetry run pytest tests/test_articles.py
+poetry run pytest tests/test_tags.py
 
 # Run with verbose output
 poetry run pytest -v
