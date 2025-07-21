@@ -19,7 +19,7 @@
 		9009 // Pyroscope
 	],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "python3 -m venv .venv && poetry install && opentelemetry-bootstrap -a install",
+	"postCreateCommand": "python3 -m venv .venv && poetry install && opentelemetry-bootstrap -a install && cp .env.example .env",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {

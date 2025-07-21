@@ -29,9 +29,7 @@ async def async_session():
     """Create an async session for testing."""
     # Create in-memory database for testing
     engine = create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
-        poolclass=StaticPool,
-        echo=False
+        "sqlite+aiosqlite:///:memory:", poolclass=StaticPool, echo=False
     )
 
     # Create all tables
@@ -56,7 +54,7 @@ class TestArticleSchemas:
             title="Test Article",
             description="Test description",
             body="Test body content",
-            tagList=["python", "testing"]
+            tagList=["python", "testing"],
         )
         assert article.title == "Test Article"
         assert article.description == "Test description"
@@ -69,7 +67,7 @@ class TestArticleSchemas:
             title="Test",
             description="Test",
             body="Test",
-            tagList=["Python", "Machine Learning", "API Design"]
+            tagList=["Python", "Machine Learning", "API Design"],
         )
         assert article.tagList == ["python", "machine-learning", "api-design"]
 
@@ -79,7 +77,7 @@ class TestArticleSchemas:
             title="Test",
             description="Test",
             body="Test",
-            tagList=["python", "Python", "PYTHON", "react", "react"]
+            tagList=["python", "Python", "PYTHON", "react", "react"],
         )
         assert article.tagList == ["python", "react"]
 
@@ -108,7 +106,7 @@ class TestArticleService:
             username="testuser",
             hashed_password="hashed_password",
             is_active=True,
-            is_verified=True
+            is_verified=True,
         )
         async_session.add(user)
         await async_session.commit()
@@ -123,7 +121,7 @@ class TestArticleService:
             username="anotheruser",
             hashed_password="hashed_password",
             is_active=True,
-            is_verified=True
+            is_verified=True,
         )
         async_session.add(user)
         await async_session.commit()
@@ -139,7 +137,7 @@ class TestArticleService:
             title="Test Article",
             description="Test description",
             body="Test body content",
-            tag_list=["python", "testing"]
+            tag_list=["python", "testing"],
         )
         return article
 
@@ -153,7 +151,7 @@ class TestArticleService:
             title="Test Article",
             description="Test description",
             body="Test body content",
-            tag_list=["python", "testing"]
+            tag_list=["python", "testing"],
         )
 
         assert article.title == "Test Article"
@@ -165,7 +163,9 @@ class TestArticleService:
         assert article.favorites_count == 0
         assert not article.favorited
 
-    async def test_create_article_duplicate_slug(self, async_session: AsyncSession, sample_user: User):
+    async def test_create_article_duplicate_slug(
+        self, async_session: AsyncSession, sample_user: User
+    ):
         """Test creating articles with duplicate titles generates unique slugs."""
         service = ArticleService(async_session)
 
@@ -175,7 +175,7 @@ class TestArticleService:
             title="Test Article",
             description="Test description 1",
             body="Test body content 1",
-            tag_list=[]
+            tag_list=[],
         )
 
         # Create second article with same title
@@ -184,13 +184,15 @@ class TestArticleService:
             title="Test Article",
             description="Test description 2",
             body="Test body content 2",
-            tag_list=[]
+            tag_list=[],
         )
 
         assert article1.slug == "test-article"
         assert article2.slug == "test-article-1"
 
-    async def test_get_article_by_slug(self, async_session: AsyncSession, sample_article: Article, sample_user: User):
+    async def test_get_article_by_slug(
+        self, async_session: AsyncSession, sample_article: Article, sample_user: User
+    ):
         """Test getting article by slug."""
         service = ArticleService(async_session)
 
@@ -201,7 +203,9 @@ class TestArticleService:
         assert article.slug == sample_article.slug
         assert not article.favorited  # User hasn't favorited it
 
-    async def test_get_articles_with_pagination(self, async_session: AsyncSession, sample_user: User):
+    async def test_get_articles_with_pagination(
+        self, async_session: AsyncSession, sample_user: User
+    ):
         """Test getting articles with pagination."""
         service = ArticleService(async_session)
 
@@ -212,7 +216,7 @@ class TestArticleService:
                 title=f"Article {i}",
                 description=f"Description {i}",
                 body=f"Body {i}",
-                tag_list=[]
+                tag_list=[],
             )
 
         # Test pagination
@@ -224,7 +228,9 @@ class TestArticleService:
         assert len(articles) == 2
         assert total_count == 5
 
-    async def test_get_articles_filter_by_tag(self, async_session: AsyncSession, sample_user: User):
+    async def test_get_articles_filter_by_tag(
+        self, async_session: AsyncSession, sample_user: User
+    ):
         """Test filtering articles by tag."""
         service = ArticleService(async_session)
 
@@ -234,7 +240,7 @@ class TestArticleService:
             title="Python Article",
             description="About Python",
             body="Python content",
-            tag_list=["python", "programming"]
+            tag_list=["python", "programming"],
         )
 
         await service.create_article(
@@ -242,7 +248,7 @@ class TestArticleService:
             title="JavaScript Article",
             description="About JavaScript",
             body="JavaScript content",
-            tag_list=["javascript", "programming"]
+            tag_list=["javascript", "programming"],
         )
 
         # Filter by python tag
@@ -251,7 +257,9 @@ class TestArticleService:
         assert articles[0].title == "Python Article"
         assert total_count == 1
 
-    async def test_get_articles_filter_by_author(self, async_session: AsyncSession, sample_user: User, another_user: User):
+    async def test_get_articles_filter_by_author(
+        self, async_session: AsyncSession, sample_user: User, another_user: User
+    ):
         """Test filtering articles by author."""
         service = ArticleService(async_session)
 
@@ -261,7 +269,7 @@ class TestArticleService:
             title="Article by User 1",
             description="Description",
             body="Body",
-            tag_list=[]
+            tag_list=[],
         )
 
         await service.create_article(
@@ -269,7 +277,7 @@ class TestArticleService:
             title="Article by User 2",
             description="Description",
             body="Body",
-            tag_list=[]
+            tag_list=[],
         )
 
         # Filter by author
@@ -278,7 +286,9 @@ class TestArticleService:
         assert articles[0].title == "Article by User 1"
         assert total_count == 1
 
-    async def test_update_article(self, async_session: AsyncSession, sample_article: Article, sample_user: User):
+    async def test_update_article(
+        self, async_session: AsyncSession, sample_article: Article, sample_user: User
+    ):
         """Test updating an article."""
         service = ArticleService(async_session)
 
@@ -286,7 +296,7 @@ class TestArticleService:
             slug=sample_article.slug,
             current_user=sample_user,
             title="Updated Title",
-            description="Updated description"
+            description="Updated description",
         )
 
         assert updated_article.title == "Updated Title"
@@ -294,7 +304,9 @@ class TestArticleService:
         assert updated_article.body == sample_article.body  # Unchanged
         assert updated_article.slug == "updated-title"  # Slug updated
 
-    async def test_update_article_unauthorized(self, async_session: AsyncSession, sample_article: Article, another_user: User):
+    async def test_update_article_unauthorized(
+        self, async_session: AsyncSession, sample_article: Article, another_user: User
+    ):
         """Test updating article by non-author raises error."""
         service = ArticleService(async_session)
 
@@ -302,10 +314,12 @@ class TestArticleService:
             await service.update_article(
                 slug=sample_article.slug,
                 current_user=another_user,
-                title="Unauthorized Update"
+                title="Unauthorized Update",
             )
 
-    async def test_delete_article(self, async_session: AsyncSession, sample_article: Article, sample_user: User):
+    async def test_delete_article(
+        self, async_session: AsyncSession, sample_article: Article, sample_user: User
+    ):
         """Test deleting an article."""
         service = ArticleService(async_session)
 
@@ -316,23 +330,31 @@ class TestArticleService:
         deleted_article = await service.get_article_by_slug(sample_article.slug)
         assert deleted_article is None
 
-    async def test_delete_article_unauthorized(self, async_session: AsyncSession, sample_article: Article, another_user: User):
+    async def test_delete_article_unauthorized(
+        self, async_session: AsyncSession, sample_article: Article, another_user: User
+    ):
         """Test deleting article by non-author raises error."""
         service = ArticleService(async_session)
 
         with pytest.raises(Exception):  # Should raise HTTPException
             await service.delete_article(sample_article.slug, another_user)
 
-    async def test_favorite_article(self, async_session: AsyncSession, sample_article: Article, another_user: User):
+    async def test_favorite_article(
+        self, async_session: AsyncSession, sample_article: Article, another_user: User
+    ):
         """Test favoriting an article."""
         service = ArticleService(async_session)
 
-        favorited_article = await service.favorite_article(sample_article.slug, another_user)
+        favorited_article = await service.favorite_article(
+            sample_article.slug, another_user
+        )
 
         assert favorited_article.favorited is True
         assert favorited_article.favorites_count == 1
 
-    async def test_unfavorite_article(self, async_session: AsyncSession, sample_article: Article, another_user: User):
+    async def test_unfavorite_article(
+        self, async_session: AsyncSession, sample_article: Article, another_user: User
+    ):
         """Test unfavoriting an article."""
         service = ArticleService(async_session)
 
@@ -340,12 +362,16 @@ class TestArticleService:
         await service.favorite_article(sample_article.slug, another_user)
 
         # Then unfavorite it
-        unfavorited_article = await service.unfavorite_article(sample_article.slug, another_user)
+        unfavorited_article = await service.unfavorite_article(
+            sample_article.slug, another_user
+        )
 
         assert unfavorited_article.favorited is False
         assert unfavorited_article.favorites_count == 0
 
-    async def test_get_feed(self, async_session: AsyncSession, sample_user: User, another_user: User):
+    async def test_get_feed(
+        self, async_session: AsyncSession, sample_user: User, another_user: User
+    ):
         """Test getting user feed."""
         service = ArticleService(async_session)
 
@@ -359,7 +385,7 @@ class TestArticleService:
             title="Feed Article",
             description="From followed user",
             body="Content",
-            tag_list=[]
+            tag_list=[],
         )
 
         # Create article by non-followed user (should not appear in feed)
@@ -368,7 +394,7 @@ class TestArticleService:
             username="unfollowed",
             hashed_password="password",
             is_active=True,
-            is_verified=True
+            is_verified=True,
         )
         async_session.add(unfollowed_user)
         await async_session.commit()
@@ -378,7 +404,7 @@ class TestArticleService:
             title="Not in Feed",
             description="From unfollowed user",
             body="Content",
-            tag_list=[]
+            tag_list=[],
         )
 
         # Get feed
@@ -401,7 +427,7 @@ class TestCommentService:
             username="testuser",
             hashed_password="hashed_password",
             is_active=True,
-            is_verified=True
+            is_verified=True,
         )
         async_session.add(user)
         await async_session.commit()
@@ -417,18 +443,18 @@ class TestCommentService:
             title="Test Article",
             description="Test description",
             body="Test body content",
-            tag_list=[]
+            tag_list=[],
         )
         return article
 
-    async def test_create_comment(self, async_session: AsyncSession, sample_article: Article, sample_user: User):
+    async def test_create_comment(
+        self, async_session: AsyncSession, sample_article: Article, sample_user: User
+    ):
         """Test creating a new comment."""
         service = CommentService(async_session)
 
         comment = await service.create_comment(
-            slug=sample_article.slug,
-            author=sample_user,
-            body="This is a test comment"
+            slug=sample_article.slug, author=sample_user, body="This is a test comment"
         )
 
         assert comment.body == "This is a test comment"
@@ -436,7 +462,9 @@ class TestCommentService:
         assert comment.author_id == sample_user.id
         assert comment.id is not None
 
-    async def test_get_comments_for_article(self, async_session: AsyncSession, sample_article: Article, sample_user: User):
+    async def test_get_comments_for_article(
+        self, async_session: AsyncSession, sample_article: Article, sample_user: User
+    ):
         """Test getting comments for an article."""
         service = CommentService(async_session)
 
@@ -451,15 +479,21 @@ class TestCommentService:
         assert comments[0].body == "Second comment"
         assert comments[1].body == "First comment"
 
-    async def test_delete_comment(self, async_session: AsyncSession, sample_article: Article, sample_user: User):
+    async def test_delete_comment(
+        self, async_session: AsyncSession, sample_article: Article, sample_user: User
+    ):
         """Test deleting a comment."""
         service = CommentService(async_session)
 
         # Create comment
-        comment = await service.create_comment(sample_article.slug, sample_user, "Test comment")
+        comment = await service.create_comment(
+            sample_article.slug, sample_user, "Test comment"
+        )
 
         # Delete comment
-        result = await service.delete_comment(sample_article.slug, comment.id, sample_user)
+        result = await service.delete_comment(
+            sample_article.slug, comment.id, sample_user
+        )
         assert result is True
 
         # Verify comment is deleted

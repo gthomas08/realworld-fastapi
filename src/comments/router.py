@@ -14,7 +14,7 @@ from .schemas import (
     NewCommentRequest,
     SingleCommentResponse,
     MultipleCommentsResponse,
-    Comment as CommentSchema
+    Comment as CommentSchema,
 )
 
 router = APIRouter(prefix="/articles", tags=["Comments"])
@@ -26,21 +26,21 @@ def _user_to_profile_schema(user: User, is_following: bool = False) -> ProfileRe
         username=user.username,
         bio=user.bio or "",
         image=user.image or "",
-        following=is_following
+        following=is_following,
     )
 
 
 def _comment_to_schema(comment, current_user: Optional[User] = None) -> CommentSchema:
     """Convert Comment model to CommentSchema."""
     # Check if the author has the is_following attribute set by the service
-    is_following = getattr(comment.author, 'is_following', False)
+    is_following = getattr(comment.author, "is_following", False)
 
     return CommentSchema(
         id=comment.id,
         createdAt=comment.created_at,
         updatedAt=comment.updated_at,
         body=comment.body,
-        author=_user_to_profile_schema(comment.author, is_following)
+        author=_user_to_profile_schema(comment.author, is_following),
     )
 
 
@@ -48,7 +48,7 @@ def _comment_to_schema(comment, current_user: Optional[User] = None) -> CommentS
 async def get_article_comments(
     slug: str,
     session: AsyncSession = Depends(get_async_session),
-    current_user: Optional[User] = Depends(current_user_optional)
+    current_user: Optional[User] = Depends(current_user_optional),
 ):
     """
     Get comments for an article.
@@ -59,8 +59,9 @@ async def get_article_comments(
     service = CommentService(session)
     comments = await service.get_comments_for_article(slug, current_user)
 
-    comment_schemas = [_comment_to_schema(
-        comment, current_user) for comment in comments]
+    comment_schemas = [
+        _comment_to_schema(comment, current_user) for comment in comments
+    ]
 
     return MultipleCommentsResponse(comments=comment_schemas)
 
@@ -70,7 +71,7 @@ async def create_article_comment(
     slug: str,
     comment_data: NewCommentRequest,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """
     Create a comment for an article.
@@ -80,9 +81,7 @@ async def create_article_comment(
     """
     service = CommentService(session)
     comment = await service.create_comment(
-        slug=slug,
-        author=current_user,
-        body=comment_data.comment.body
+        slug=slug, author=current_user, body=comment_data.comment.body
     )
 
     comment_schema = _comment_to_schema(comment, current_user)
@@ -95,7 +94,7 @@ async def delete_article_comment(
     slug: str,
     id: int,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """
     Delete a comment for an article.

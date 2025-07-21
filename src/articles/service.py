@@ -17,9 +17,9 @@ from src.profiles.service import ProfileService
 def slugify(title: str) -> str:
     """Convert title to URL-friendly slug."""
     # Convert to lowercase and replace spaces/special chars with hyphens
-    slug = re.sub(r'[^\w\s-]', '', title.lower())
-    slug = re.sub(r'[-\s]+', '-', slug)
-    return slug.strip('-')
+    slug = re.sub(r"[^\w\s-]", "", title.lower())
+    slug = re.sub(r"[-\s]+", "-", slug)
+    return slug.strip("-")
 
 
 class ArticleService:
@@ -36,7 +36,7 @@ class ArticleService:
         author: Optional[str] = None,
         favorited: Optional[str] = None,
         limit: int = 20,
-        offset: int = 0
+        offset: int = 0,
     ) -> Tuple[List[Article], int]:
         """Get articles with filtering, pagination, and user context."""
 
@@ -44,7 +44,7 @@ class ArticleService:
         query = select(Article).options(
             selectinload(Article.author),
             selectinload(Article.tags),
-            selectinload(Article.favorited_by)
+            selectinload(Article.favorited_by),
         )
 
         # Count query for total articles
@@ -55,8 +55,11 @@ class ArticleService:
 
         if tag:
             # Filter by tag
-            tag_subquery = select(article_tags.c.article_id).join(
-                Tag).where(Tag.name == tag.lower())
+            tag_subquery = (
+                select(article_tags.c.article_id)
+                .join(Tag)
+                .where(Tag.name == tag.lower())
+            )
             filters.append(Article.id.in_(tag_subquery))
 
         if author:
@@ -98,23 +101,26 @@ class ArticleService:
                     current_user.id, article.author.id
                 )
                 # Pre-compute tag list to avoid lazy loading in router
-                article._tag_list = [tag.name for tag in article.tags] if hasattr(
-                    article, 'tags') else []
+                article._tag_list = (
+                    [tag.name for tag in article.tags]
+                    if hasattr(article, "tags")
+                    else []
+                )
         else:
             for article in articles:
                 article.favorited = False
                 article.author.is_following = False
                 # Pre-compute tag list to avoid lazy loading in router
-                article._tag_list = [tag.name for tag in article.tags] if hasattr(
-                    article, 'tags') else []
+                article._tag_list = (
+                    [tag.name for tag in article.tags]
+                    if hasattr(article, "tags")
+                    else []
+                )
 
         return list(articles), total_count
 
     async def get_feed(
-        self,
-        current_user: User,
-        limit: int = 20,
-        offset: int = 0
+        self, current_user: User, limit: int = 20, offset: int = 0
     ) -> Tuple[List[Article], int]:
         """Get feed of articles from followed users."""
 
@@ -124,13 +130,16 @@ class ArticleService:
         )
 
         # Build main query for articles from followed users
-        query = select(Article).options(
-            selectinload(Article.author),
-            selectinload(Article.tags),
-            selectinload(Article.favorited_by)
-        ).where(
-            Article.author_id.in_(followed_users_query)
-        ).order_by(desc(Article.created_at))
+        query = (
+            select(Article)
+            .options(
+                selectinload(Article.author),
+                selectinload(Article.tags),
+                selectinload(Article.favorited_by),
+            )
+            .where(Article.author_id.in_(followed_users_query))
+            .order_by(desc(Article.created_at))
+        )
 
         # Count query
         count_query = select(func.count(Article.id)).where(
@@ -153,23 +162,26 @@ class ArticleService:
             # Since this is a feed of followed users, they are all following
             article.author.is_following = True
             # Pre-compute tag list to avoid lazy loading in router
-            article._tag_list = [tag.name for tag in article.tags] if hasattr(
-                article, 'tags') else []
+            article._tag_list = (
+                [tag.name for tag in article.tags] if hasattr(article, "tags") else []
+            )
 
         return list(articles), total_count
 
     async def get_article_by_slug(
-        self,
-        slug: str,
-        current_user: Optional[User] = None
+        self, slug: str, current_user: Optional[User] = None
     ) -> Optional[Article]:
         """Get article by slug with user context."""
 
-        query = select(Article).options(
-            selectinload(Article.author),
-            selectinload(Article.tags),
-            selectinload(Article.favorited_by)
-        ).where(Article.slug == slug)
+        query = (
+            select(Article)
+            .options(
+                selectinload(Article.author),
+                selectinload(Article.tags),
+                selectinload(Article.favorited_by),
+            )
+            .where(Article.slug == slug)
+        )
 
         result = await self.session.execute(query)
         article = result.scalar_one_or_none()
@@ -185,18 +197,14 @@ class ArticleService:
                 article.favorited = False
                 article.author.is_following = False
             # Pre-compute tag list to avoid lazy loading in router
-            article._tag_list = [tag.name for tag in article.tags] if hasattr(
-                article, 'tags') else []
+            article._tag_list = (
+                [tag.name for tag in article.tags] if hasattr(article, "tags") else []
+            )
 
         return article
 
     async def create_article(
-        self,
-        author: User,
-        title: str,
-        description: str,
-        body: str,
-        tag_list: List[str]
+        self, author: User, title: str, description: str, body: str, tag_list: List[str]
     ) -> Article:
         """Create a new article."""
 
@@ -215,7 +223,7 @@ class ArticleService:
             title=title,
             description=description,
             body=body,
-            author_id=author.id
+            author_id=author.id,
         )
 
         self.session.add(article)
@@ -246,22 +254,21 @@ class ArticleService:
         current_user: User,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        body: Optional[str] = None
+        body: Optional[str] = None,
     ) -> Article:
         """Update an article."""
 
         article = await self.get_article_by_slug(slug, current_user)
         if not article:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Article not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
 
         # Check authorization
         if article.author_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only update your own articles"
+                detail="You can only update your own articles",
             )
 
         # Update fields
@@ -293,14 +300,15 @@ class ArticleService:
         if updated:
             article.updated_at = datetime.utcnow()
             await self.session.commit()
-            await self.session.refresh(article, ['author', 'tags'])
+            await self.session.refresh(article, ["author", "tags"])
 
         # Set favorited status and following status (false for own articles)
         article.favorited = article.is_favorited_by(current_user.id)
         article.author.is_following = False
         # Pre-compute tag list to avoid lazy loading in router
-        article._tag_list = [tag.name for tag in article.tags] if hasattr(
-            article, 'tags') else []
+        article._tag_list = (
+            [tag.name for tag in article.tags] if hasattr(article, "tags") else []
+        )
 
         return article
 
@@ -310,15 +318,14 @@ class ArticleService:
         article = await self.get_article_by_slug(slug)
         if not article:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Article not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
 
         # Check authorization
         if article.author_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only delete your own articles"
+                detail="You can only delete your own articles",
             )
 
         await self.session.delete(article)
@@ -331,8 +338,7 @@ class ArticleService:
         article = await self.get_article_by_slug(slug, current_user)
         if not article:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Article not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
 
         # Check if already favorited
@@ -343,8 +349,9 @@ class ArticleService:
                 current_user.id, article.author.id
             )
             # Pre-compute tag list to avoid lazy loading in router
-            article._tag_list = [tag.name for tag in article.tags] if hasattr(
-                article, 'tags') else []
+            article._tag_list = (
+                [tag.name for tag in article.tags] if hasattr(article, "tags") else []
+            )
             return article
 
         # Store attributes before modification to avoid lazy loading after commit
@@ -357,11 +364,15 @@ class ArticleService:
         await self.session.commit()
 
         # Re-fetch article with all relationships to avoid lazy loading
-        query = select(Article).options(
-            selectinload(Article.author),
-            selectinload(Article.tags),
-            selectinload(Article.favorited_by)
-        ).where(Article.id == article_id)
+        query = (
+            select(Article)
+            .options(
+                selectinload(Article.author),
+                selectinload(Article.tags),
+                selectinload(Article.favorited_by),
+            )
+            .where(Article.id == article_id)
+        )
         result = await self.session.execute(query)
         article = result.scalar_one()
 
@@ -371,8 +382,7 @@ class ArticleService:
             current_user.id, article.author.id
         )
         # Pre-compute tag list to avoid lazy loading in router
-        article._tag_list = [
-            tag.name for tag in article.tags] if article.tags else []
+        article._tag_list = [tag.name for tag in article.tags] if article.tags else []
         return article
 
     async def unfavorite_article(self, slug: str, current_user: User) -> Article:
@@ -381,8 +391,7 @@ class ArticleService:
         article = await self.get_article_by_slug(slug, current_user)
         if not article:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Article not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
 
         # Check if not favorited
@@ -393,8 +402,9 @@ class ArticleService:
                 current_user.id, article.author.id
             )
             # Pre-compute tag list to avoid lazy loading in router
-            article._tag_list = [tag.name for tag in article.tags] if hasattr(
-                article, 'tags') else []
+            article._tag_list = (
+                [tag.name for tag in article.tags] if hasattr(article, "tags") else []
+            )
             return article
 
         # Store attributes before modification to avoid lazy loading after commit
@@ -407,11 +417,15 @@ class ArticleService:
         await self.session.commit()
 
         # Re-fetch article with all relationships to avoid lazy loading
-        query = select(Article).options(
-            selectinload(Article.author),
-            selectinload(Article.tags),
-            selectinload(Article.favorited_by)
-        ).where(Article.id == article_id)
+        query = (
+            select(Article)
+            .options(
+                selectinload(Article.author),
+                selectinload(Article.tags),
+                selectinload(Article.favorited_by),
+            )
+            .where(Article.id == article_id)
+        )
         result = await self.session.execute(query)
         article = result.scalar_one()
 
@@ -421,8 +435,7 @@ class ArticleService:
             current_user.id, article.author.id
         )
         # Pre-compute tag list to avoid lazy loading in router
-        article._tag_list = [
-            tag.name for tag in article.tags] if article.tags else []
+        article._tag_list = [tag.name for tag in article.tags] if article.tags else []
         return article
 
     async def _slug_exists(self, slug: str) -> bool:
@@ -431,14 +444,18 @@ class ArticleService:
         result = await self.session.execute(query)
         return result.scalar_one_or_none() is not None
 
-    async def _process_article_tags(self, article: Article, tag_names: List[str]) -> None:
+    async def _process_article_tags(
+        self, article: Article, tag_names: List[str]
+    ) -> None:
         """Process and associate tags with article."""
         # Get existing article tags to avoid lazy loading
-        existing_tags_query = select(Tag).join(article_tags).where(
-            article_tags.c.article_id == article.id)
+        existing_tags_query = (
+            select(Tag)
+            .join(article_tags)
+            .where(article_tags.c.article_id == article.id)
+        )
         existing_tags_result = await self.session.execute(existing_tags_query)
-        existing_tags = {
-            tag.name: tag for tag in existing_tags_result.scalars().all()}
+        existing_tags = {tag.name: tag for tag in existing_tags_result.scalars().all()}
 
         for tag_name in tag_names:
             tag_name_lower = tag_name.lower()
@@ -459,8 +476,8 @@ class ArticleService:
 
             # Associate with article using direct SQL to avoid lazy loading
             from sqlalchemy import insert
+
             insert_stmt = insert(article_tags).values(
-                article_id=article.id,
-                tag_id=tag.id
+                article_id=article.id, tag_id=tag.id
             )
             await self.session.execute(insert_stmt)

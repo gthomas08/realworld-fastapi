@@ -12,7 +12,7 @@ from src.comments.router import router as comments_router
 
 app = FastAPI(
     title="Real World FastAPI",
-    description="A FastAPI application with authentication",
+    description="A Medium-like clone backend API built with FastAPI.",
 )
 
 # Optionally add CORS middleware (customize as needed)

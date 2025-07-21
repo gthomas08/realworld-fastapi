@@ -11,13 +11,12 @@ from .schemas import ProfileResponse, FollowResponse
 router = APIRouter(prefix="/profiles", tags=["Profiles"])
 
 
-def _user_to_profile_response(user: User, is_following: bool = False) -> ProfileResponse:
+def _user_to_profile_response(
+    user: User, is_following: bool = False
+) -> ProfileResponse:
     """Convert User model to ProfileResponse."""
     return ProfileResponse(
-        username=user.username,
-        bio=user.bio,
-        image=user.image,
-        following=is_following
+        username=user.username, bio=user.bio, image=user.image, following=is_following
     )
 
 
@@ -25,7 +24,7 @@ def _user_to_profile_response(user: User, is_following: bool = False) -> Profile
 async def get_profile(
     username: str,
     session: AsyncSession = Depends(get_async_session),
-    current_user: Optional[User] = Depends(current_user_optional)
+    current_user: Optional[User] = Depends(current_user_optional),
 ):
     """Get user profile by username. Authentication is optional."""
     profile_service = ProfileService(session)
@@ -33,12 +32,11 @@ async def get_profile(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
         )
 
     # Get following status if user is authenticated
-    is_following = getattr(user, 'is_following', False)
+    is_following = getattr(user, "is_following", False)
 
     return _user_to_profile_response(user, is_following)
 
@@ -47,7 +45,7 @@ async def get_profile(
 async def follow_profile(
     username: str,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """Follow a user profile."""
     profile_service = ProfileService(session)
@@ -61,7 +59,7 @@ async def follow_profile(
 async def unfollow_profile(
     username: str,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """Unfollow a user profile."""
     profile_service = ProfileService(session)

@@ -14,9 +14,7 @@ class ProfileService:
         self.session = session
 
     async def get_profile_by_username(
-        self,
-        username: str,
-        current_user: Optional[User] = None
+        self, username: str, current_user: Optional[User] = None
     ) -> Optional[User]:
         stmt = select(User).where(User.username == username)
         result = await self.session.execute(stmt)
@@ -33,23 +31,21 @@ class ProfileService:
         user_to_follow = await self._get_user_by_username(username)
         if not user_to_follow:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Profile not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
             )
         if user_to_follow.id == follower.id:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Cannot follow yourself"
+                detail="Cannot follow yourself",
             )
         is_following = await self._is_following(follower.id, user_to_follow.id)
         if is_following:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Already following this user"
+                detail="Already following this user",
             )
         follow_stmt = user_follows.insert().values(
-            follower_id=follower.id,
-            followed_id=user_to_follow.id
+            follower_id=follower.id, followed_id=user_to_follow.id
         )
         await self.session.execute(follow_stmt)
         await self.session.commit()
@@ -61,19 +57,18 @@ class ProfileService:
         user_to_unfollow = await self._get_user_by_username(username)
         if not user_to_unfollow:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Profile not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
             )
         is_following = await self._is_following(follower.id, user_to_unfollow.id)
         if not is_following:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Not following this user"
+                detail="Not following this user",
             )
         delete_stmt = user_follows.delete().where(
             and_(
                 user_follows.c.follower_id == follower.id,
-                user_follows.c.followed_id == user_to_unfollow.id
+                user_follows.c.followed_id == user_to_unfollow.id,
             )
         )
         await self.session.execute(delete_stmt)
@@ -92,7 +87,7 @@ class ProfileService:
             exists().where(
                 and_(
                     user_follows.c.follower_id == follower_id,
-                    user_follows.c.followed_id == followed_id
+                    user_follows.c.followed_id == followed_id,
                 )
             )
         )

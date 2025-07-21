@@ -9,9 +9,7 @@ router = APIRouter(prefix="/tags", tags=["Tags"])
 
 
 @router.get("", response_model=TagsResponse)
-async def get_tags(
-    session: AsyncSession = Depends(get_async_session)
-):
+async def get_tags(session: AsyncSession = Depends(get_async_session)):
     """Get all tags."""
     service = TagService(session)
     tags = await service.get_all_tags()

@@ -19,33 +19,30 @@ if TYPE_CHECKING:
 class Comment(Base):
     """Comment model for article comments."""
 
-    __tablename__ = 'comments'
+    __tablename__ = "comments"
 
     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
     body: Mapped[str] = Column(Text, nullable=False)
     article_id: Mapped[UUID] = Column(
         PostgreSQLUUID(as_uuid=True),
-        ForeignKey('articles.id', ondelete='CASCADE'),
+        ForeignKey("articles.id", ondelete="CASCADE"),
         nullable=False,
-        index=True
+        index=True,
     )
     author_id: Mapped[UUID] = Column(
         PostgreSQLUUID(as_uuid=True),
-        ForeignKey('users.id', ondelete='CASCADE'),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
-        index=True
+        index=True,
     )
     created_at: Mapped[datetime] = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
-        index=True
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
     )
     updated_at: Mapped[datetime] = Column(
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
-        nullable=False
+        nullable=False,
     )
 
     # Relationships

@@ -8,6 +8,7 @@ import re
 
 class ProfileSchema(BaseModel):
     """Profile schema for embedded author information."""
+
     username: str
     bio: str
     image: str
@@ -16,33 +17,34 @@ class ProfileSchema(BaseModel):
 
 class NewArticle(BaseModel):
     """Schema for creating a new article."""
+
     title: str = Field(..., min_length=1, max_length=255)
     description: str = Field(..., min_length=1)
     body: str = Field(..., min_length=1)
     tagList: Optional[List[str]] = Field(default_factory=list, alias="tagList")
 
-    @field_validator('title')
+    @field_validator("title")
     @classmethod
     def validate_title(cls, v):
         if not v.strip():
-            raise ValueError('Title cannot be empty')
+            raise ValueError("Title cannot be empty")
         return v.strip()
 
-    @field_validator('description')
+    @field_validator("description")
     @classmethod
     def validate_description(cls, v):
         if not v.strip():
-            raise ValueError('Description cannot be empty')
+            raise ValueError("Description cannot be empty")
         return v.strip()
 
-    @field_validator('body')
+    @field_validator("body")
     @classmethod
     def validate_body(cls, v):
         if not v.strip():
-            raise ValueError('Body cannot be empty')
+            raise ValueError("Body cannot be empty")
         return v.strip()
 
-    @field_validator('tagList')
+    @field_validator("tagList")
     @classmethod
     def validate_tag_list(cls, v):
         if v is None:
@@ -52,7 +54,7 @@ class NewArticle(BaseModel):
         for tag in v:
             if tag and tag.strip():
                 # Normalize tag: lowercase, replace spaces with hyphens
-                normalized_tag = re.sub(r'\s+', '-', tag.strip().lower())
+                normalized_tag = re.sub(r"\s+", "-", tag.strip().lower())
                 if normalized_tag not in normalized_tags:
                     normalized_tags.append(normalized_tag)
         return normalized_tags
@@ -60,34 +62,36 @@ class NewArticle(BaseModel):
 
 class UpdateArticle(BaseModel):
     """Schema for updating an article."""
+
     title: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = Field(None, min_length=1)
     body: Optional[str] = Field(None, min_length=1)
 
-    @field_validator('title')
+    @field_validator("title")
     @classmethod
     def validate_title(cls, v):
         if v is not None and not v.strip():
-            raise ValueError('Title cannot be empty')
+            raise ValueError("Title cannot be empty")
         return v.strip() if v else v
 
-    @field_validator('description')
+    @field_validator("description")
     @classmethod
     def validate_description(cls, v):
         if v is not None and not v.strip():
-            raise ValueError('Description cannot be empty')
+            raise ValueError("Description cannot be empty")
         return v.strip() if v else v
 
-    @field_validator('body')
+    @field_validator("body")
     @classmethod
     def validate_body(cls, v):
         if v is not None and not v.strip():
-            raise ValueError('Body cannot be empty')
+            raise ValueError("Body cannot be empty")
         return v.strip() if v else v
 
 
 class Article(BaseModel):
     """Article response schema."""
+
     slug: str
     title: str
     description: str
@@ -104,21 +108,25 @@ class Article(BaseModel):
 
 class NewArticleRequest(BaseModel):
     """Request schema for creating a new article."""
+
     article: NewArticle
 
 
 class UpdateArticleRequest(BaseModel):
     """Request schema for updating an article."""
+
     article: UpdateArticle
 
 
 class SingleArticleResponse(BaseModel):
     """Response schema for a single article."""
+
     article: Article
 
 
 class MultipleArticlesResponse(BaseModel):
     """Response schema for multiple articles."""
+
     articles: List[Article]
     articlesCount: int = Field(alias="articlesCount")
 

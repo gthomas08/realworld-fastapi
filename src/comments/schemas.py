@@ -10,18 +10,20 @@ from src.profiles.schemas import ProfileResponse
 
 class NewComment(BaseModel):
     """Schema for creating a new comment."""
+
     body: str = Field(..., min_length=1)
 
-    @field_validator('body')
+    @field_validator("body")
     @classmethod
     def validate_body(cls, v):
         if not v.strip():
-            raise ValueError('Comment body cannot be empty')
+            raise ValueError("Comment body cannot be empty")
         return v.strip()
 
 
 class Comment(BaseModel):
     """Comment response schema."""
+
     id: int
     createdAt: datetime = Field(alias="createdAt")
     updatedAt: datetime = Field(alias="updatedAt")
@@ -33,14 +35,17 @@ class Comment(BaseModel):
 
 class NewCommentRequest(BaseModel):
     """Request schema for creating a new comment."""
+
     comment: NewComment
 
 
 class SingleCommentResponse(BaseModel):
     """Response schema for a single comment."""
+
     comment: Comment
 
 
 class MultipleCommentsResponse(BaseModel):
     """Response schema for multiple comments."""
+
     comments: List[Comment]

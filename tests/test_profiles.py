@@ -57,7 +57,9 @@ class TestProfiles:
 class TestProfileService:
     """Test ProfileService methods."""
 
-    async def test_get_profile_by_username(self, async_session: AsyncSession, test_user: User):
+    async def test_get_profile_by_username(
+        self, async_session: AsyncSession, test_user: User
+    ):
         """Test getting profile by username."""
         service = ProfileService(async_session)
 
@@ -73,10 +75,7 @@ class TestProfileService:
         assert profile is None
 
     async def test_get_profile_with_following_status(
-        self,
-        async_session: AsyncSession,
-        test_user: User,
-        other_user: User
+        self, async_session: AsyncSession, test_user: User, other_user: User
     ):
         """Test getting profile with following status."""
         service = ProfileService(async_session)
@@ -88,8 +87,7 @@ class TestProfileService:
         # Create follow relationship
         await async_session.execute(
             user_follows.insert().values(
-                follower_id=test_user.id,
-                followed_id=other_user.id
+                follower_id=test_user.id, followed_id=other_user.id
             )
         )
         await async_session.commit()
@@ -99,10 +97,7 @@ class TestProfileService:
         assert profile.is_following is True
 
     async def test_follow_user(
-        self,
-        async_session: AsyncSession,
-        test_user: User,
-        other_user: User
+        self, async_session: AsyncSession, test_user: User, other_user: User
     ):
         """Test following a user."""
         service = ProfileService(async_session)
@@ -118,10 +113,7 @@ class TestProfileService:
         assert is_following is True
 
     async def test_unfollow_user(
-        self,
-        async_session: AsyncSession,
-        test_user: User,
-        other_user: User
+        self, async_session: AsyncSession, test_user: User, other_user: User
     ):
         """Test unfollowing a user."""
         service = ProfileService(async_session)
@@ -151,7 +143,7 @@ class TestProfileSchemas:
             "username": "testuser",
             "bio": "Test bio",
             "image": "https://example.com/image.jpg",
-            "following": True
+            "following": True,
         }
 
         profile = ProfileResponse(**profile_data)
@@ -171,9 +163,7 @@ class TestUserModelValidation:
 
         # Valid user creation
         user_create = UserCreate(
-            email="test@example.com",
-            password="password123",
-            username="testuser"
+            email="test@example.com", password="password123", username="testuser"
         )
         assert user_create.username == "testuser"
 
@@ -186,14 +176,11 @@ class TestUserModelValidation:
             UserCreate(
                 email="test@example.com",
                 password="password123",
-                username="user@name"  # Invalid character
+                username="user@name",  # Invalid character
             )
 
     async def test_get_profile_with_following_status(
-        self,
-        async_session: AsyncSession,
-        test_user: User,
-        other_user: User
+        self, async_session: AsyncSession, test_user: User, other_user: User
     ):
         """Test getting profile with following status."""
         service = ProfileService(async_session)
@@ -205,8 +192,7 @@ class TestUserModelValidation:
         # Create follow relationship
         await async_session.execute(
             user_follows.insert().values(
-                follower_id=test_user.id,
-                followed_id=other_user.id
+                follower_id=test_user.id, followed_id=other_user.id
             )
         )
         await async_session.commit()
@@ -216,10 +202,7 @@ class TestUserModelValidation:
         assert profile.is_following is True
 
     async def test_follow_user(
-        self,
-        async_session: AsyncSession,
-        test_user: User,
-        other_user: User
+        self, async_session: AsyncSession, test_user: User, other_user: User
     ):
         """Test following a user."""
         service = ProfileService(async_session)
@@ -234,7 +217,9 @@ class TestUserModelValidation:
         is_following = await service._is_following(test_user.id, other_user.id)
         assert is_following is True
 
-    async def test_follow_nonexistent_user(self, async_session: AsyncSession, test_user: User):
+    async def test_follow_nonexistent_user(
+        self, async_session: AsyncSession, test_user: User
+    ):
         """Test following a non-existent user raises error."""
         service = ProfileService(async_session)
 
@@ -249,10 +234,7 @@ class TestUserModelValidation:
             await service.follow_user(test_user, test_user.username)
 
     async def test_follow_already_following(
-        self,
-        async_session: AsyncSession,
-        test_user: User,
-        other_user: User
+        self, async_session: AsyncSession, test_user: User, other_user: User
     ):
         """Test following user already being followed raises error."""
         service = ProfileService(async_session)
@@ -265,10 +247,7 @@ class TestUserModelValidation:
             await service.follow_user(test_user, other_user.username)
 
     async def test_unfollow_user(
-        self,
-        async_session: AsyncSession,
-        test_user: User,
-        other_user: User
+        self, async_session: AsyncSession, test_user: User, other_user: User
     ):
         """Test unfollowing a user."""
         service = ProfileService(async_session)
@@ -287,10 +266,7 @@ class TestUserModelValidation:
         assert is_following is False
 
     async def test_unfollow_not_following(
-        self,
-        async_session: AsyncSession,
-        test_user: User,
-        other_user: User
+        self, async_session: AsyncSession, test_user: User, other_user: User
     ):
         """Test unfollowing user not being followed raises error."""
         service = ProfileService(async_session)
@@ -310,7 +286,7 @@ class TestProfileSchemas:
             "username": "testuser",
             "bio": "Test bio",
             "image": "https://example.com/image.jpg",
-            "following": True
+            "following": True,
         }
 
         profile = ProfileResponse(**profile_data)

@@ -14,6 +14,10 @@ RUN pip3 --disable-pip-version-check --no-cache-dir install --upgrade pip && \
 # Install Poetry via pipx
 RUN pipx install poetry
 
+# Copy .env.example to .env if it doesn't exist
+COPY .env.example .env* ./
+RUN cp .env.example .env 2>/dev/null || true
+
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>

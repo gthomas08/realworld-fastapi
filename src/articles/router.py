@@ -13,7 +13,7 @@ from .schemas import (
     SingleArticleResponse,
     MultipleArticlesResponse,
     Article as ArticleSchema,
-    ProfileSchema
+    ProfileSchema,
 )
 
 router = APIRouter(prefix="/articles", tags=["Articles"])
@@ -25,21 +25,21 @@ def _user_to_profile_schema(user: User, is_following: bool = False) -> ProfileSc
         username=user.username,
         bio=user.bio or "",
         image=user.image or "",
-        following=is_following
+        following=is_following,
     )
 
 
 def _article_to_schema(article, current_user: Optional[User] = None) -> ArticleSchema:
     """Convert Article model to ArticleSchema."""
     # Check if the author has the is_following attribute set by the service
-    is_following = getattr(article.author, 'is_following', False)
+    is_following = getattr(article.author, "is_following", False)
 
     # Safely get tag list - check if tags are loaded to avoid lazy loading
     try:
-        tag_list = getattr(article, '_tag_list', None)
+        tag_list = getattr(article, "_tag_list", None)
         if tag_list is None:
             # Fallback to accessing tags if they're already loaded
-            if hasattr(article, '__dict__') and 'tags' in article.__dict__:
+            if hasattr(article, "__dict__") and "tags" in article.__dict__:
                 tag_list = [tag.name for tag in article.tags]
             else:
                 tag_list = []
@@ -57,13 +57,13 @@ def _article_to_schema(article, current_user: Optional[User] = None) -> ArticleS
         favorites_count = article.favorites_count
     except:
         # If we can't access attributes due to expiration, use fallback values
-        slug = getattr(article, 'slug', '')
-        title = getattr(article, 'title', '')
-        description = getattr(article, 'description', '')
-        body = getattr(article, 'body', '')
-        created_at = getattr(article, 'created_at', None)
-        updated_at = getattr(article, 'updated_at', None)
-        favorites_count = getattr(article, 'favorites_count', 0)
+        slug = getattr(article, "slug", "")
+        title = getattr(article, "title", "")
+        description = getattr(article, "description", "")
+        body = getattr(article, "body", "")
+        created_at = getattr(article, "created_at", None)
+        updated_at = getattr(article, "updated_at", None)
+        favorites_count = getattr(article, "favorites_count", 0)
 
     return ArticleSchema(
         slug=slug,
@@ -73,20 +73,20 @@ def _article_to_schema(article, current_user: Optional[User] = None) -> ArticleS
         tagList=tag_list,
         createdAt=created_at,
         updatedAt=updated_at,
-        favorited=getattr(article, 'favorited', False),
+        favorited=getattr(article, "favorited", False),
         favoritesCount=favorites_count,
-        author=_user_to_profile_schema(article.author, is_following)
+        author=_user_to_profile_schema(article.author, is_following),
     )
 
 
 @router.get("/feed", response_model=MultipleArticlesResponse)
 async def get_articles_feed(
-    limit: int = Query(default=20, ge=1, le=100,
-                       description="Number of articles to return"),
-    offset: int = Query(
-        default=0, ge=0, description="Number of articles to skip"),
+    limit: int = Query(
+        default=20, ge=1, le=100, description="Number of articles to return"
+    ),
+    offset: int = Query(default=0, ge=0, description="Number of articles to skip"),
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """
     Get recent articles from users you follow.
@@ -98,28 +98,26 @@ async def get_articles_feed(
     service = ArticleService(session)
     articles, total_count = await service.get_feed(current_user, limit, offset)
 
-    article_schemas = [_article_to_schema(
-        article, current_user) for article in articles]
+    article_schemas = [
+        _article_to_schema(article, current_user) for article in articles
+    ]
 
-    return MultipleArticlesResponse(
-        articles=article_schemas,
-        articlesCount=total_count
-    )
+    return MultipleArticlesResponse(articles=article_schemas, articlesCount=total_count)
 
 
 @router.get("", response_model=MultipleArticlesResponse)
 async def get_articles(
     tag: Optional[str] = Query(None, description="Filter by tag"),
-    author: Optional[str] = Query(
-        None, description="Filter by author (username)"),
+    author: Optional[str] = Query(None, description="Filter by author (username)"),
     favorited: Optional[str] = Query(
-        None, description="Filter by favorites of a user (username)"),
-    limit: int = Query(default=20, ge=1, le=100,
-                       description="Number of articles to return"),
-    offset: int = Query(
-        default=0, ge=0, description="Number of articles to skip"),
+        None, description="Filter by favorites of a user (username)"
+    ),
+    limit: int = Query(
+        default=20, ge=1, le=100, description="Number of articles to return"
+    ),
+    offset: int = Query(default=0, ge=0, description="Number of articles to skip"),
     session: AsyncSession = Depends(get_async_session),
-    current_user: Optional[User] = Depends(current_user_optional)
+    current_user: Optional[User] = Depends(current_user_optional),
 ):
     """
     Get recent articles globally.
@@ -135,23 +133,23 @@ async def get_articles(
         author=author,
         favorited=favorited,
         limit=limit,
-        offset=offset
+        offset=offset,
     )
 
-    article_schemas = [_article_to_schema(
-        article, current_user) for article in articles]
+    article_schemas = [
+        _article_to_schema(article, current_user) for article in articles
+    ]
 
-    return MultipleArticlesResponse(
-        articles=article_schemas,
-        articlesCount=total_count
-    )
+    return MultipleArticlesResponse(articles=article_schemas, articlesCount=total_count)
 
 
-@router.post("", response_model=SingleArticleResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "", response_model=SingleArticleResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_article(
     article_data: NewArticleRequest,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """
     Create an article.
@@ -165,7 +163,7 @@ async def create_article(
         title=article_data.article.title,
         description=article_data.article.description,
         body=article_data.article.body,
-        tag_list=article_data.article.tagList
+        tag_list=article_data.article.tagList,
     )
 
     article_schema = _article_to_schema(article, current_user)
@@ -177,7 +175,7 @@ async def create_article(
 async def get_article(
     slug: str,
     session: AsyncSession = Depends(get_async_session),
-    current_user: Optional[User] = Depends(current_user_optional)
+    current_user: Optional[User] = Depends(current_user_optional),
 ):
     """
     Get an article by slug.
@@ -190,8 +188,7 @@ async def get_article(
 
     if not article:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Article not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
         )
 
     article_schema = _article_to_schema(article, current_user)
@@ -204,7 +201,7 @@ async def update_article(
     slug: str,
     article_data: UpdateArticleRequest,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """
     Update an article.
@@ -218,7 +215,7 @@ async def update_article(
         current_user=current_user,
         title=article_data.article.title,
         description=article_data.article.description,
-        body=article_data.article.body
+        body=article_data.article.body,
     )
 
     article_schema = _article_to_schema(article, current_user)
@@ -230,7 +227,7 @@ async def update_article(
 async def delete_article(
     slug: str,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """
     Delete an article.
@@ -248,7 +245,7 @@ async def delete_article(
 async def favorite_article(
     slug: str,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """
     Favorite an article.
@@ -268,7 +265,7 @@ async def favorite_article(
 async def unfavorite_article(
     slug: str,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """
     Unfavorite an article.

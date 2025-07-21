@@ -21,9 +21,7 @@ class CommentService:
         self.profile_service = ProfileService(session)
 
     async def get_comments_for_article(
-        self,
-        slug: str,
-        current_user: Optional[User] = None
+        self, slug: str, current_user: Optional[User] = None
     ) -> List[Comment]:
         """Get all comments for an article."""
 
@@ -34,16 +32,16 @@ class CommentService:
 
         if not article_id:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Article not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
 
         # Get comments
-        query = select(Comment).options(
-            selectinload(Comment.author)
-        ).where(
-            Comment.article_id == article_id
-        ).order_by(desc(Comment.created_at))
+        query = (
+            select(Comment)
+            .options(selectinload(Comment.author))
+            .where(Comment.article_id == article_id)
+            .order_by(desc(Comment.created_at))
+        )
 
         result = await self.session.execute(query)
         comments = result.scalars().all()
@@ -60,12 +58,7 @@ class CommentService:
 
         return list(comments)
 
-    async def create_comment(
-        self,
-        slug: str,
-        author: User,
-        body: str
-    ) -> Comment:
+    async def create_comment(self, slug: str, author: User, body: str) -> Comment:
         """Create a new comment on an article."""
 
         # Get article
@@ -75,16 +68,11 @@ class CommentService:
 
         if not article_id:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Article not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
 
         # Create comment
-        comment = Comment(
-            body=body,
-            article_id=article_id,
-            author_id=author.id
-        )
+        comment = Comment(body=body, article_id=article_id, author_id=author.id)
 
         self.session.add(comment)
         await self.session.commit()
@@ -103,10 +91,7 @@ class CommentService:
         return comment
 
     async def delete_comment(
-        self,
-        slug: str,
-        comment_id: int,
-        current_user: User
+        self, slug: str, comment_id: int, current_user: User
     ) -> bool:
         """Delete a comment."""
 
@@ -117,8 +102,7 @@ class CommentService:
 
         if not article_id:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Article not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
 
         # Get comment
@@ -130,15 +114,14 @@ class CommentService:
 
         if not comment:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Comment not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found"
             )
 
         # Check authorization
         if comment.author_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only delete your own comments"
+                detail="You can only delete your own comments",
             )
 
         await self.session.delete(comment)

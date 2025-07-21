@@ -6,7 +6,7 @@ from .schemas import (
     Comment,
     NewCommentRequest,
     SingleCommentResponse,
-    MultipleCommentsResponse
+    MultipleCommentsResponse,
 )
 from .service import CommentService
 from .models import Comment as CommentModel
@@ -19,5 +19,5 @@ __all__ = [
     "SingleCommentResponse",
     "MultipleCommentsResponse",
     "CommentService",
-    "CommentModel"
+    "CommentModel",
 ]
